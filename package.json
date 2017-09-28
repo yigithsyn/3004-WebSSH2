@@ -1,5 +1,5 @@
 {
-  "name": "WebSSH2",
+  "name": "webssh2",
   "version": "0.1.2",
   "ignore": [
     ".gitignore"
@@ -9,7 +9,7 @@
   "homepage": "https://github.com/billchurch/WebSSH2",
   "keywords": "ssh webssh terminal webterminal",
   "license": "SEE LICENSE IN FILE - LICENSE",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/billchurch/WebSSH2.git"
