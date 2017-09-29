@@ -19,5 +19,16 @@
         onclick="toggleLog();">Start Log</a></div>
     </div>
   </div>
+  <div id="authmodal" class="modal">
+  <form class="modal-content animate" method="post" id="authform" action="#">
+    <div class="container">
+      <label><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="username" id="username" required>
+      <label><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" id="password" required>
+      <button type="button" onclick="submit_by_id()">Login</button>
+    </div>
+  </form>
+  </div>
 </body>
 </html>

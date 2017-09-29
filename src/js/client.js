@@ -1,6 +1,6 @@
 /* global io, Terminal, Blob */
 var sessionLogEnable = false
-var sessionLog, sessionFooter, logDate, currentDate, myFile, errorExists
+var sessionLog, sessionFooter, logDate, currentDate, myFile, errorExists, username, password
 
 // replay password to server, requires
 function replayCredentials () { // eslint-disable-line
@@ -75,16 +75,32 @@ term.open(terminalContainer, {
 })
 term.fit()
 
-if (document.location.pathname) {
-  var parts = document.location.pathname.split('/')
-  var base = parts.slice(0, parts.length - 1).join('/') + '/'
-  var resource = base.substring(1) + 'socket.io'
-  socket = io.connect(null, {
-    resource: resource
-  })
-} else {
-  socket = io.connect()
+function connectToServer (myusername, mypassword) {
+  if (document.location.pathname) {
+    var parts = document.location.pathname.split('/')
+    var base = parts.slice(0, parts.length - 1).join('/') + '/'
+    console.log('connectToServer: ' + myusername)
+    var resource = base.substring(1) + 'socket.io'
+    socket = io.connect(null, {
+      resource: resource
+    })
+    if (myusername) {
+      socket.emit('auth', new Array(myusername, mypassword))
+    }
+  } else {
+    console.log('hello, in else for connectToServer')
+    socket = io.connect()
+  }
 }
+
+function submit_by_id () {
+  username = document.getElementById('username').value
+  password = document.getElementById('password').value
+  console.log('submit_by_id: username: ' + username + ' password: ' + password)
+  connectToServer(username, password)
+}
+
+connectToServer()
 
 socket.on('connect', function () {
   socket.emit('geometry', term.cols, term.rows)
@@ -132,5 +148,7 @@ socket.on('connect', function () {
       document.getElementById('status').style.backgroundColor = 'red'
       document.getElementById('status').innerHTML = 'ERROR: ' + err
     }
+  }).on('reauth', function (err) {
+    document.getElementById('authmodal').style.display = 'block'
   })
 })

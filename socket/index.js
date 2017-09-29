@@ -9,12 +9,18 @@ var termCols, termRows
 // public
 module.exports = function socket (socket) {
   // if websocket connection arrives without an express session, kill it
-  if (!socket.request.session) {
-    socket.emit('401 UNAUTHORIZED')
-    debugWebSSH2('SOCKET: No Express Session / REJECTED')
-    socket.disconnect(true)
-    return
-  }
+  // if (!socket.request.session) {
+  //  socket.emit('401 UNAUTHORIZED')
+  //  debugWebSSH2('SOCKET: No Express Session / REJECTED')
+  //  socket.disconnect(true)
+  //  return
+  // }
+  //
+  socket.on('auth', function (data) {
+    console.log('/////////////username: ' + data[0] + ' password: ' + data[1])
+    socket.request.session.username = data[0]
+    socket.request.session.userpassword = data[1]
+  })
   var conn = new SSH()
   socket.on('geometry', function socketOnGeometry (cols, rows) {
     termCols = cols
@@ -101,6 +107,7 @@ module.exports = function socket (socket) {
     finish([socket.request.session.userpassword])
   })
   if (socket.request.session.username && socket.request.session.userpassword && socket.request.session.ssh) {
+    console.log('conn.connect - socket.request.session.username: ' + socket.request.session.username + ' socket.request.session.userpassword: ' + socket.request.session.userpassword)
     conn.connect({
       host: socket.request.session.ssh.host,
       port: socket.request.session.ssh.port,
@@ -135,12 +142,13 @@ module.exports = function socket (socket) {
         console.log('WebSSH2 ' + 'error: Authentication failure'.red.bold +
           ' user=' + socket.request.session.username.yellow.bold.underline +
           ' from=' + socket.handshake.address.yellow.bold.underline)
+        socket.emit('reauth', 'Invalid username or password')
       } else {
         console.log('WebSSH2 Logout: user=' + socket.request.session.username + ' from=' + socket.handshake.address + ' host=' + socket.request.session.ssh.host + ' port=' + socket.request.session.ssh.port + ' sessionID=' + socket.request.sessionID + '/' + socket.id + ' allowreplay=' + socket.request.session.ssh.allowreplay + ' term=' + socket.request.session.ssh.term)
       }
       socket.emit('ssherror', 'SSH ' + myFunc + theError)
-      socket.request.session.destroy()
-      socket.disconnect(true)
+      // socket.request.session.destroy()
+      // socket.disconnect(true)
     } else {
       theError = (err) ? ': ' + err.message : ''
       socket.disconnect(true)
